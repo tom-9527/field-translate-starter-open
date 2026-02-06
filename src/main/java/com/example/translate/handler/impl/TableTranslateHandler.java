@@ -7,6 +7,7 @@ import com.example.translate.handler.TranslateHandler;
 import com.example.translate.spi.DictCacheProvider;
 import com.example.translate.support.TableCacheKeySpec;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.ResultSetExtractor;
 
 import java.sql.ResultSet;
 import java.util.ArrayList;
@@ -115,7 +116,19 @@ public class TableTranslateHandler implements TranslateHandler {
                                           List<Object> batch) {
         try {
             String sql = buildSql(table, keyColumn, valueColumn, batch.size());
-            return jdbcTemplate.query(sql, batch.toArray(), rs -> readResult(rs, keyColumn, valueColumn));
+
+            return jdbcTemplate.query(
+                    sql,
+                    batch.toArray(),
+                    (ResultSetExtractor<Map<Object, Object>>) rs ->
+                    {
+                        try {
+                            return readResult(rs, keyColumn, valueColumn);
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+            );
         } catch (RuntimeException ex) {
             // 查询失败不应影响主流程。
             return Collections.emptyMap();
