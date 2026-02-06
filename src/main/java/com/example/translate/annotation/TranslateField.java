@@ -42,7 +42,7 @@ public @interface TranslateField {
      * 框架不硬编码任何业务枚举。
      * </p>
      */
-    Class<? extends Enum<?>> enumClass() default Enum.class;
+    Class<? extends Enum<?>> enumClass() default NoneEnum.class;
 
     /**
      * 缓存字典翻译时使用的字典 key / code。
