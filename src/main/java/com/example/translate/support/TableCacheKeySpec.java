@@ -1,4 +1,4 @@
-﻿package com.example.translate.support;
+package com.example.translate.support;
 
 /**
  * 表字段翻译缓存 key 规范。

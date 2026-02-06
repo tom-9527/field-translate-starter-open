@@ -1,4 +1,4 @@
-﻿package com.example.translate.example;
+package com.example.translate.example;
 
 import com.example.translate.spi.CodeEnum;
 

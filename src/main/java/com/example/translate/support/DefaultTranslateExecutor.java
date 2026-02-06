@@ -1,4 +1,4 @@
-﻿package com.example.translate.support;
+package com.example.translate.support;
 
 import com.example.translate.annotation.TranslateField;
 import com.example.translate.context.TranslateContext;

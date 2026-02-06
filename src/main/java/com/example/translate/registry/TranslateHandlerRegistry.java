@@ -1,4 +1,4 @@
-﻿package com.example.translate.registry;
+package com.example.translate.registry;
 
 import com.example.translate.annotation.TranslateType;
 import com.example.translate.handler.TranslateHandler;

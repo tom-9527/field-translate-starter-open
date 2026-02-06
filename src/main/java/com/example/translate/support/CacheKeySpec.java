@@ -1,4 +1,4 @@
-﻿package com.example.translate.support;
+package com.example.translate.support;
 
 /**
  * 缓存字典的 key 规范。

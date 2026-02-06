@@ -1,4 +1,4 @@
-﻿package com.example.translate.support;
+package com.example.translate.support;
 
 /**
  * 返回前翻译的执行入口。

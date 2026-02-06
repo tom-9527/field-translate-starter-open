@@ -1,4 +1,4 @@
-﻿package com.example.translate.context;
+package com.example.translate.context;
 
 import java.util.Collections;
 import java.util.HashSet;

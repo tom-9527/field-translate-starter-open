@@ -1,4 +1,4 @@
-﻿package com.example.translate.spi;
+package com.example.translate.spi;
 
 /**
  * 统一枚举接口（code -> desc）。

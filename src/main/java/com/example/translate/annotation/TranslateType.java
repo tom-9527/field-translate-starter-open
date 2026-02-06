@@ -1,4 +1,4 @@
-﻿package com.example.translate.annotation;
+package com.example.translate.annotation;
 
 /**
  * 框架识别的翻译类型。

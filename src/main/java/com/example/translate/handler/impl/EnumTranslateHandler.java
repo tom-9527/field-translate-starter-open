@@ -1,4 +1,4 @@
-﻿package com.example.translate.handler.impl;
+package com.example.translate.handler.impl;
 
 import com.example.translate.annotation.TranslateField;
 import com.example.translate.annotation.TranslateType;
@@ -34,7 +34,7 @@ public class EnumTranslateHandler implements TranslateHandler {
         }
 
         Class<? extends Enum<?>> enumClass = meta.enumClass();
-        if (enumClass == null || enumClass == Enum.class) {
+        if (enumClass == null || Enum.class.equals(enumClass)) {
             // 未指定枚举类，安全降级。
             return Collections.emptyMap();
         }

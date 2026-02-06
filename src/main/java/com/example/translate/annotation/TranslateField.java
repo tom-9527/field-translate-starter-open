@@ -1,4 +1,4 @@
-﻿package com.example.translate.annotation;
+package com.example.translate.annotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;

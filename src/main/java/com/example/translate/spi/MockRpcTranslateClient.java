@@ -1,4 +1,4 @@
-﻿package com.example.translate.spi;
+package com.example.translate.spi;
 
 import java.util.Collection;
 import java.util.Collections;

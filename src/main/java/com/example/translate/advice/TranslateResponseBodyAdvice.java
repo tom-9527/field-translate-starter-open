@@ -1,4 +1,4 @@
-﻿package com.example.translate.advice;
+package com.example.translate.advice;
 
 import com.example.translate.context.TranslateContext;
 import com.example.translate.support.TranslateExecutor;
