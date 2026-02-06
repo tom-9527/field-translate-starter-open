@@ -20,11 +20,10 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 /**
- * Default handler for table-based translation using a lightweight lookup.
+ * 使用轻量查询的表字段翻译默认处理器。
  * <p>
- * Design intent: translate foreign-key-like values without forcing JOINs or
- * ORM mappings in business SQL. The handler batches lookups to avoid N+1 and
- * degrades safely on any error.
+ * 设计意图：在不强制业务 SQL 使用 JOIN 或 ORM 映射的前提下，
+ * 翻译类似外键的值。处理器批量查询以避免 N+1，并在异常时安全降级。
  * </p>
  */
 public class TableTranslateHandler implements TranslateHandler {
@@ -59,7 +58,7 @@ public class TableTranslateHandler implements TranslateHandler {
         String keyColumn = meta.keyColumn();
         String valueColumn = meta.valueColumn();
         if (!isValidIdentifier(table, keyColumn, valueColumn)) {
-            // Reject unsafe identifiers to avoid SQL injection risks.
+            // 拒绝不安全的标识符，避免 SQL 注入风险。
             return Collections.emptyMap();
         }
 
@@ -73,7 +72,7 @@ public class TableTranslateHandler implements TranslateHandler {
             return Collections.emptyMap();
         }
 
-        // Step 1: attempt cache lookup to reduce database access.
+        // 步骤 1：先查缓存以减少数据库访问。
         Map<Object, Object> result = new HashMap<>();
         Set<Object> pending = new HashSet<>(uniqueValues);
         if (cacheProvider != null) {
@@ -85,7 +84,7 @@ public class TableTranslateHandler implements TranslateHandler {
             }
         }
 
-        // Step 2: if cache misses remain, query the database in batches.
+        // 步骤 2：若仍有缓存未命中，则分批查询数据库。
         if (!pending.isEmpty() && jdbcTemplate != null) {
             List<Object> pendingList = new ArrayList<>(pending);
             for (int i = 0; i < pendingList.size(); i += DEFAULT_BATCH_SIZE) {
@@ -103,7 +102,7 @@ public class TableTranslateHandler implements TranslateHandler {
 
     private Map<Object, Object> safeCacheBatch(String namespace, Collection<Object> codes) {
         try {
-            // Cache provider chooses the storage backend; miss should not throw.
+            // 缓存提供者选择存储后端；未命中不应抛异常。
             return cacheProvider.getBatch(namespace, codes);
         } catch (RuntimeException ex) {
             return Collections.emptyMap();
@@ -118,7 +117,7 @@ public class TableTranslateHandler implements TranslateHandler {
             String sql = buildSql(table, keyColumn, valueColumn, batch.size());
             return jdbcTemplate.query(sql, batch.toArray(), rs -> readResult(rs, keyColumn, valueColumn));
         } catch (RuntimeException ex) {
-            // Query failures must not break the main flow.
+            // 查询失败不应影响主流程。
             return Collections.emptyMap();
         }
     }
@@ -157,7 +156,7 @@ public class TableTranslateHandler implements TranslateHandler {
         if (table.isEmpty() || keyColumn.isEmpty() || valueColumn.isEmpty()) {
             return false;
         }
-        // Only allow safe characters to avoid SQL injection via annotation values.
+        // 仅允许安全字符，避免注解值导致 SQL 注入。
         return TABLE_NAME.matcher(table).matches()
                 && IDENTIFIER.matcher(keyColumn).matches()
                 && IDENTIFIER.matcher(valueColumn).matches();

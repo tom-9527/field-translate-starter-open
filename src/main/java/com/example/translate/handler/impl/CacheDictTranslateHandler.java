@@ -13,10 +13,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Default handler for cache-based dictionary translation.
+ * 基于缓存字典翻译的默认处理器。
  * <p>
- * Design intent: delegate cache access to {@link DictCacheProvider} so the
- * framework remains agnostic of local/Redis implementations.
+ * 设计意图：把缓存访问委托给 {@link DictCacheProvider}，
+ * 使框架对本地缓存/Redis 等实现保持无感知。
  * </p>
  */
 public class CacheDictTranslateHandler implements TranslateHandler {
@@ -42,12 +42,12 @@ public class CacheDictTranslateHandler implements TranslateHandler {
 
         String dictKey = meta.dictKey();
         if (dictKey == null || dictKey.isEmpty()) {
-            // No dictionary namespace specified; degrade safely.
+            // 未指定字典命名空间，安全降级。
             return Collections.emptyMap();
         }
 
         if (cacheProvider == null) {
-            // Cache provider not configured; degrade safely.
+            // 未配置缓存提供者，安全降级。
             return Collections.emptyMap();
         }
 
@@ -56,7 +56,7 @@ public class CacheDictTranslateHandler implements TranslateHandler {
             return Collections.emptyMap();
         }
 
-        // Normalize results to ensure only requested keys are returned.
+        // 规范化结果，确保只返回请求的键。
         Map<Object, Object> result = new HashMap<>();
         for (Object rawValue : rawValues) {
             if (rawValue == null) {
@@ -72,24 +72,24 @@ public class CacheDictTranslateHandler implements TranslateHandler {
 
     private Map<Object, Object> safeGetBatch(String dictKey, Collection<Object> rawValues) {
         try {
-            // DictCacheProvider is responsible for choosing a key format.
-            // CacheKeySpec provides a recommended convention for consistency.
+            // DictCacheProvider 负责选择 key 格式。
+            // CacheKeySpec 提供推荐规范以保持一致性。
             return cacheProvider.getBatch(dictKey, rawValues);
         } catch (RuntimeException ex) {
-            // Cache miss or failure must not break the main flow.
+            // 缓存未命中或异常不应影响主流程。
             return Collections.emptyMap();
         }
     }
 
     /**
-     * Returns the recommended cache key format for one dictionary entry.
+     * 返回单条字典的推荐缓存 key 格式。
      * <p>
-     * Design intent: make the key convention explicit for implementers.
+     * 设计意图：把 key 约定显式化，便于实现者遵循一致规范。
      * </p>
      *
-     * @param dictKey dictionary namespace
-     * @param code raw code value
-     * @return cache key string
+     * @param dictKey 字典命名空间
+     * @param code 原始 code 值
+     * @return 缓存 key 字符串
      */
     public String buildCacheKey(String dictKey, Object code) {
         return CacheKeySpec.dictKey(dictKey, code);

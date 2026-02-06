@@ -1,21 +1,18 @@
 ﻿package com.example.translate.support;
 
 /**
- * Cache key conventions for table-based translation.
+ * 表字段翻译缓存 key 规范。
  * <p>
- * Design intent: make key formats explicit and consistent across cache
- * implementations, while keeping table translation independent of a specific
- * cache technology.
+ * 设计意图：明确 key 的命名空间，以避免不同表/列之间冲突。
  * </p>
  */
 public final class TableCacheKeySpec {
 
     /**
-     * Prefix for table-translation entries.
+     * 表翻译前缀。
      * <p>
-     * Format namespace: table:{table}:{keyColumn}:{valueColumn}
-     * Entry key: {namespace}:{code}
-     * Example: table:sys_user:id:name:1001 -> "Alice"
+     * 命名空间格式：table:{table}:{keyColumn}:{valueColumn}
+     * 示例：table:sys_user:id:name:1001 -> "Alice"
      * </p>
      */
     public static final String TABLE_PREFIX = "table";
@@ -24,16 +21,15 @@ public final class TableCacheKeySpec {
     }
 
     /**
-     * Builds a cache namespace for a table translation set.
+     * 构建表翻译缓存命名空间。
      * <p>
-     * Design intent: allow caches to group entries by table/column pair so
-     * lookups remain efficient and avoid collisions.
+     * 设计意图：以表名与列名分组缓存，避免数据串用。
      * </p>
      *
-     * @param table table name
-     * @param keyColumn code column
-     * @param valueColumn display column
-     * @return namespace string
+     * @param table 表名
+     * @param keyColumn 键列
+     * @param valueColumn 值列
+     * @return 命名空间
      */
     public static String namespace(String table, String keyColumn, String valueColumn) {
         return TABLE_PREFIX + ":" + table + ":" + keyColumn + ":" + valueColumn;

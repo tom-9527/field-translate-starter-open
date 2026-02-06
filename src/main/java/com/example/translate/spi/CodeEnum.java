@@ -1,33 +1,33 @@
 ﻿package com.example.translate.spi;
 
 /**
- * Optional contract for enums that expose a code and description pair.
+ * 统一枚举接口（code -> desc）。
  * <p>
- * Design intent: provide a uniform way to map code -> description without
- * hardcoding enum details inside the framework.
+ * 设计意图：让枚举自身暴露翻译所需信息，
+ * 框架不依赖任何业务枚举实现细节。
  * </p>
  *
- * @param <C> code type
+ * @param <C> code 类型
  */
 public interface CodeEnum<C> {
 
     /**
-     * Returns the code used for translation lookup.
+     * 获取枚举的 code。
      * <p>
-     * Design intent: keep translation keys explicit and stable.
+     * 设计意图：保证翻译的 key 明确且稳定。
      * </p>
      *
-     * @return code value
+     * @return code
      */
     C getCode();
 
     /**
-     * Returns the human-readable description.
+     * 获取枚举的描述文案。
      * <p>
-     * Design intent: keep display values owned by the enum itself.
+     * 设计意图：显示值由枚举本身管理。
      * </p>
      *
-     * @return description
+     * @return 描述
      */
     String getDesc();
 }

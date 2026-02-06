@@ -12,10 +12,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Default handler for enum-based translation.
+ * 基于枚举翻译的默认处理器。
  * <p>
- * Design intent: use enum metadata declared on {@link TranslateField} to map
- * codes to descriptions without tying the framework to any business enum.
+ * 设计意图：使用 {@link TranslateField} 上声明的枚举元信息完成
+ * code 到描述的映射，框架不绑定任何业务枚举实现。
  * </p>
  */
 public class EnumTranslateHandler implements TranslateHandler {
@@ -35,7 +35,7 @@ public class EnumTranslateHandler implements TranslateHandler {
 
         Class<? extends Enum<?>> enumClass = meta.enumClass();
         if (enumClass == null || enumClass == Enum.class) {
-            // No enum class specified; degrade safely.
+            // 未指定枚举类，安全降级。
             return Collections.emptyMap();
         }
 
@@ -60,7 +60,7 @@ public class EnumTranslateHandler implements TranslateHandler {
 
     private Object resolveEnum(Object rawValue, Enum<?>[] constants) {
         for (Enum<?> constant : constants) {
-            // Prefer CodeEnum contract for explicit code->desc mapping.
+            // 优先使用 CodeEnum 约定的 code->desc 映射。
             if (constant instanceof CodeEnum) {
                 Object code = ((CodeEnum<?>) constant).getCode();
                 if (rawValue.equals(code)) {
@@ -69,7 +69,7 @@ public class EnumTranslateHandler implements TranslateHandler {
                 continue;
             }
 
-            // Fallback: match by name or ordinal string.
+            // 兜底：按名称或序号字符串匹配。
             if (rawValue instanceof String) {
                 if (constant.name().equals(rawValue)) {
                     return constant.name();

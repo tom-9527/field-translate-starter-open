@@ -6,62 +6,55 @@ import com.example.translate.context.TranslateContext;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
- * SPI contract for a single translation strategy.
+ * 单一翻译策略的 SPI 接口。
  * <p>
- * Design intent: each translation type (ENUM/CACHE/TABLE/RPC) provides one
- * implementation of this interface, enabling plug-and-play extension without
- * modifying framework code or business logic.
+ * 设计意图：每种翻译方式（ENUM/CACHE/TABLE/RPC）实现该接口，
+ * 以实现可插拔扩展而无需修改核心逻辑。
  * </p>
  */
 public interface TranslateHandler {
 
     /**
-     * Declares the translation type supported by this handler.
+     * 返回当前处理器支持的翻译类型。
      * <p>
-     * Design intent: allow the registry to route translation requests without
-     * hardcoding conditional logic.
+     * 设计意图：由注册表进行路由，避免硬编码条件判断。
      * </p>
      *
-     * @return supported translation type
+     * @return 翻译类型
      */
     TranslateType type();
 
     /**
-     * Translates a batch of raw field values into display values.
+     * 批量翻译入口。
      * <p>
-     * Design intent: make batch translation the primary path to avoid N+1 lookups
-     * and enable efficient cache/RPC/DB access patterns. The handler decides how
-     * to interpret annotation metadata and execute the lookup, while the caller
-     * only coordinates the flow.
+     * 设计意图：以批量为默认路径避免 N+1 查询，
+     * 便于缓存/DB/RPC 的高效访问。
      * </p>
      *
-     * @param rawValues original field values from the DTO/VO collection
-     * @param meta the annotation metadata that describes translation intent
-     * @param context the current translation context for switches and policies
-     * @return a map from raw value to translated value. Missing keys imply
-     *         translation failure and should be treated as {@code null} or raw value.
-     * @throws RuntimeException never thrown intentionally by design; implementations
-     *                          must handle errors internally and degrade safely
+     * @param rawValues 原始字段值集合
+     * @param meta 注解元信息（翻译意图）
+     * @param context 当前翻译上下文（开关/策略）
+     * @return 原值到翻译值的映射；缺失键表示翻译失败
+     * @throws RuntimeException 设计上不应抛出，
+     *                          实现需自行吞错并降级
      */
     Map<Object, Object> batchTranslate(Collection<Object> rawValues,
                                        TranslateField meta,
                                        TranslateContext context);
 
     /**
-     * Translates a single raw field value into a display value.
+     * 单值翻译便捷方法。
      * <p>
-     * Design intent: provide a convenience method while keeping batch translation
-     * as the default execution model for performance.
+     * 设计意图：提供易用接口，但仍以批量逻辑为核心。
      * </p>
      *
-     * @param rawValue the original field value from the DTO/VO
-     * @param meta the annotation metadata that describes translation intent
-     * @param context the current translation context for switches and policies
-     * @return translated value, or {@code null} / original value when translation fails
+     * @param rawValue 原始字段值
+     * @param meta 注解元信息（翻译意图）
+     * @param context 当前翻译上下文（开关/策略）
+     * @return 翻译值；失败时返回 null 或原值
      */
     default Object translate(Object rawValue, TranslateField meta, TranslateContext context) {
         if (rawValue == null) {

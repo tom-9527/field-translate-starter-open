@@ -1,23 +1,23 @@
 ﻿package com.example.translate.support;
 
 /**
- * Entry point for translating response objects before they are serialized.
+ * 返回前翻译的执行入口。
  * <p>
- * Design intent: keep the trigger mechanism decoupled from traversal logic,
- * making it easy to swap or wrap the executor in different environments.
+ * 设计意图：让触发机制与遍历/翻译逻辑解耦，
+ * 便于在不同框架中复用。
  * </p>
  */
 public interface TranslateExecutor {
 
     /**
-     * Translates a response body in place.
+     * 对响应对象执行翻译（原地修改）。
      * <p>
-     * Design intent: avoid altering controller signatures while still allowing
-     * translation to be applied consistently at the response boundary.
+     * 设计意图：不改变控制器返回签名，
+     * 但在返回边界统一应用翻译规则。
      * </p>
      *
-     * @param body response body to translate
-     * @return the same body instance for chaining
+     * @param body 响应对象
+     * @return 原对象实例
      */
     Object translate(Object body);
 }

@@ -4,24 +4,24 @@ import java.util.Collection;
 import java.util.Map;
 
 /**
- * Abstraction for dictionary cache lookups.
+ * 字典缓存访问 SPI。
  * <p>
- * Design intent: hide cache implementation details (local/Redis/etc.) behind a
- * simple contract so translation remains framework-agnostic.
+ * 设计意图：隐藏具体缓存实现（本地/Redis 等），
+ * 使翻译框架与缓存技术解耦。
  * </p>
  */
 public interface DictCacheProvider {
 
     /**
-     * Batch fetches dictionary values by key.
+     * 批量获取字典值。
      * <p>
-     * Design intent: allow efficient bulk lookups to avoid N+1 cache access.
-     * Implementations should return only the hits and never throw on cache miss.
+     * 设计意图：强制批量访问，避免 N+1。
+     * 缓存 miss 不应抛异常，仅返回命中的数据。
      * </p>
      *
-     * @param dictKey dictionary namespace
-     * @param codes collection of raw code values
-     * @return map of code to translated value (missing keys imply cache miss)
+     * @param dictKey 字典命名空间
+     * @param codes 原始 code 集合
+     * @return code -> 翻译值 映射
      */
     Map<Object, Object> getBatch(String dictKey, Collection<Object> codes);
 }

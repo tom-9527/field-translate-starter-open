@@ -6,12 +6,12 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * Request-scoped translation context stored in a ThreadLocal.
+ * 请求级翻译上下文，存储于 ThreadLocal。
  * <p>
- * Design intent: provide a minimal, framework-agnostic control surface that
- * can be safely used in any web stack without AOP dependencies.
- * It explicitly separates global enablement from per-thread overrides to keep
- * translation behavior predictable and testable.
+ * 设计意图：提供最小且框架无关的开关控制能力，
+ * 使其可在任何 Web 栈中使用且不依赖 AOP。
+ * 同时明确区分“全局开关”和“请求级开关”，
+ * 以保证行为可预期且易测试。
  * </p>
  */
 public final class TranslateContext {
@@ -19,11 +19,10 @@ public final class TranslateContext {
     private static final ThreadLocal<TranslateContext> LOCAL = new ThreadLocal<>();
 
     /**
-     * Global switch controlling whether translation is enabled by default.
+     * 全局开关，控制翻译是否默认启用。
      * <p>
-     * Design intent: allow runtime or configuration-based toggling without
-     * touching business code. This value is intentionally static to represent
-     * a process-wide default policy.
+     * 设计意图：支持配置化启停，且不触及业务代码。
+     * 该值为进程级默认策略。
      * </p>
      */
     private static volatile boolean globalEnabled = true;
@@ -37,18 +36,17 @@ public final class TranslateContext {
     }
 
     /**
-     * Returns the current thread's context, creating one if absent.
+     * 获取当前线程的上下文；若不存在则创建默认上下文。
      * <p>
-     * Design intent: avoid null checks in callers and ensure each request can
-     * safely override translation behavior without global side effects.
+     * 设计意图：避免调用方到处判空，同时保证每个请求可独立覆盖策略。
      * </p>
      *
-     * @return current thread context
+     * @return 当前线程上下文
      */
     public static TranslateContext current() {
         TranslateContext ctx = LOCAL.get();
         if (ctx == null) {
-            // Create a default context that inherits the global policy
+            // 使用全局策略创建默认上下文
             ctx = new TranslateContext(globalEnabled, null);
             LOCAL.set(ctx);
         }
@@ -56,10 +54,9 @@ public final class TranslateContext {
     }
 
     /**
-     * Clears the current thread's context.
+     * 清理当前线程上下文。
      * <p>
-     * Design intent: prevent ThreadLocal leaks in thread pools and guarantee
-     * clean boundaries between requests.
+     * 设计意图：避免线程池复用导致的 ThreadLocal 泄漏。
      * </p>
      */
     public static void clear() {
@@ -67,61 +64,58 @@ public final class TranslateContext {
     }
 
     /**
-     * Sets the global enablement flag.
+     * 设置全局启用开关。
      * <p>
-     * Design intent: allow configuration-driven changes while keeping the
-     * decision centralized and explicit.
+     * 设计意图：集中式开关，便于配置驱动。
      * </p>
      *
-     * @param enabled whether translation is globally enabled
+     * @param enabled 是否全局启用
      */
     public static void setGlobalEnabled(boolean enabled) {
         globalEnabled = enabled;
     }
 
     /**
-     * Returns the current global enablement flag.
+     * 获取全局启用开关。
      *
-     * @return true if globally enabled
+     * @return 是否全局启用
      */
     public static boolean isGlobalEnabled() {
         return globalEnabled;
     }
 
     /**
-     * Enables or disables translation for the current thread.
+     * 设置当前线程是否启用翻译。
      * <p>
-     * Design intent: allow request-level overrides without affecting other
-     * threads or the global default.
+     * 设计意图：允许请求级别的开关控制，且不影响其他线程。
      * </p>
      *
-     * @param enabled whether translation is enabled for this thread
+     * @param enabled 是否启用
      */
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
     }
 
     /**
-     * Returns whether translation is enabled for the current thread.
+     * 判断当前线程是否启用翻译。
      * <p>
-     * Design intent: always combine thread state with global policy to maintain
-     * a predictable contract (global off always wins).
+     * 设计意图：全局关闭优先生效，保证统一安全策略。
      * </p>
      *
-     * @return true if translation should run for this thread
+     * @return 是否启用翻译
      */
     public boolean isEnabled() {
         return globalEnabled && enabled;
     }
 
     /**
-     * Replaces the set of enabled translation types for this thread.
+     * 设置当前线程允许的翻译类型集合。
      * <p>
-     * Design intent: allow future selective enabling by type while defaulting
-     * to "all types" when empty.
+     * 设计意图：为“仅开启部分翻译类型”预留空间。
+     * 空集合表示不做类型过滤。
      * </p>
      *
-     * @param types set of enabled type identifiers
+     * @param types 允许的类型标识集合
      */
     public void setEnabledTypes(Set<String> types) {
         enabledTypes.clear();
@@ -131,34 +125,33 @@ public final class TranslateContext {
     }
 
     /**
-     * Returns an immutable view of enabled translation types for this thread.
+     * 获取当前线程允许的翻译类型集合（只读）。
      * <p>
-     * Design intent: expose safe read-only data to avoid accidental mutation
-     * during translation.
+     * 设计意图：避免调用方误修改内部集合。
      * </p>
      *
-     * @return enabled type identifiers
+     * @return 允许的类型集合
      */
     public Set<String> getEnabledTypes() {
         return Collections.unmodifiableSet(enabledTypes);
     }
 
     /**
-     * Checks whether a given translation type is enabled for this thread.
+     * 判断某个翻译类型是否被允许。
      * <p>
-     * Design intent: keep the selection policy localized so handlers and
-     * registries can remain simple and stateless.
+     * 设计意图：将策略判断集中在上下文中，
+     * 使 handler/registry 保持无状态与简洁。
      * </p>
      *
-     * @param type type identifier
-     * @return true if type is enabled or no explicit filter is set
+     * @param type 类型标识
+     * @return 是否允许
      */
     public boolean isTypeEnabled(String type) {
         if (!isEnabled()) {
             return false;
         }
         if (enabledTypes.isEmpty()) {
-            // Empty means "no filter", so all types are allowed
+            // 空集合表示不做过滤，全部允许
             return true;
         }
         return Objects.nonNull(type) && enabledTypes.contains(type);

@@ -4,48 +4,47 @@ import com.example.translate.annotation.TranslateField;
 import com.example.translate.annotation.TranslateType;
 
 /**
- * Example VO for demonstrating field translation.
+ * 字段翻译示例 VO。
  * <p>
- * Design intent: show how to declare translation intent on raw fields while
- * keeping display fields separate to avoid overwriting original values.
+ * 设计意图：演示在原始字段上声明翻译意图，
+ * 同时将展示字段分离以避免覆盖原始值。
  * </p>
  */
 public class UserProfileVO {
 
     /**
-     * Raw status code returned by business logic.
+     * 业务逻辑返回的原始状态码。
      * <p>
-     * Design intent: business code writes only the raw value; translation
-     * happens later at the response boundary.
+     * 设计意图：业务代码只写原值，翻译在响应边界再执行。
      * </p>
      */
     @TranslateField(type = TranslateType.ENUM, enumClass = UserStatus.class, target = "statusName")
     private Integer status;
 
     /**
-     * Display field for translated status.
+     * 翻译后的状态展示字段。
      * <p>
-     * Design intent: separate display value to prevent field overwrite.
+     * 设计意图：分离展示值，避免字段覆盖。
      * </p>
      */
     private String statusName;
 
     /**
-     * Raw department code from business data.
+     * 业务数据中的原始部门编码。
      * <p>
-     * Design intent: declare cache-based translation by dict key.
+     * 设计意图：通过字典 key 声明缓存翻译。
      * </p>
      */
     @TranslateField(type = TranslateType.CACHE, dictKey = "dept", target = "deptName")
     private String deptCode;
 
     /**
-     * Display field for translated department name.
+     * 翻译后的部门名称展示字段。
      */
     private String deptName;
 
     /**
-     * Raw organization id that needs table translation.
+     * 需要表翻译的原始组织 id。
      */
     @TranslateField(type = TranslateType.TABLE,
             table = "org",
@@ -55,18 +54,18 @@ public class UserProfileVO {
     private Long orgId;
 
     /**
-     * Display field for translated organization name.
+     * 翻译后的组织名称展示字段。
      */
     private String orgName;
 
     /**
-     * Raw code to be translated by an external service.
+     * 由外部服务翻译的原始 code。
      */
     @TranslateField(type = TranslateType.RPC, rpcService = "user-profile", rpcMethod = "batchName", target = "remoteName")
     private String remoteCode;
 
     /**
-     * Display field for RPC translation result.
+     * RPC 翻译结果展示字段。
      */
     private String remoteName;
 

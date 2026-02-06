@@ -24,18 +24,17 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Default translation executor that walks the response object graph and applies
- * field translations based on {@link TranslateField} metadata.
+ * 默认翻译执行器：遍历对象图并根据注解执行翻译。
  * <p>
- * Design intent: keep all traversal and safety rules in one place so the
- * ResponseBodyAdvice can remain minimal and focused on timing.
+ * 设计意图：把遍历与安全策略集中在一处，
+ * 使 ResponseBodyAdvice 保持简洁，仅负责触发时机。
  * </p>
  */
 public class DefaultTranslateExecutor implements TranslateExecutor {
 
     private final TranslateHandlerRegistry registry;
 
-    // Cache reflective field lookups to reduce repeated scanning cost.
+    // 缓存字段反射结果，降低重复扫描成本
     private final Map<Class<?>, List<Field>> fieldCache = new ConcurrentHashMap<>();
 
     public DefaultTranslateExecutor(TranslateHandlerRegistry registry) {
@@ -50,7 +49,7 @@ public class DefaultTranslateExecutor implements TranslateExecutor {
 
         TranslateContext context = TranslateContext.current();
         if (!context.isEnabled()) {
-            // Respect global/request-level switches.
+            // 尊重全局/请求级开关
             return body;
         }
 
@@ -66,12 +65,12 @@ public class DefaultTranslateExecutor implements TranslateExecutor {
 
         Class<?> type = value.getClass();
         if (isSimpleValueType(type)) {
-            // Primitive/immutable types do not contain translatable fields.
+            // 基础/不可变类型不包含可翻译字段
             return;
         }
 
         if (state.isVisited(value)) {
-            // Prevent infinite loops on circular references.
+            // 防止循环引用导致无限递归
             return;
         }
         state.markVisited(value);
@@ -104,10 +103,10 @@ public class DefaultTranslateExecutor implements TranslateExecutor {
             return;
         }
 
-        // Batch translation across a collection to avoid N+1 lookups.
+        // 先批量翻译，避免 N+1
         batchTranslateCollection(collection, context, state);
 
-        // Recursively process nested objects after translation.
+        // 再递归处理元素的嵌套对象
         for (Object element : collection) {
             processObject(element, context, state);
         }
@@ -117,7 +116,7 @@ public class DefaultTranslateExecutor implements TranslateExecutor {
         if (map.isEmpty()) {
             return;
         }
-        // Only values are traversed to avoid unexpected key mutation.
+        // 只遍历 value，避免意外修改 key
         for (Object value : map.values()) {
             processObject(value, context, state);
         }
@@ -134,43 +133,43 @@ public class DefaultTranslateExecutor implements TranslateExecutor {
         for (Field field : getAllFields(bean.getClass())) {
             TranslateField meta = field.getAnnotation(TranslateField.class);
             if (meta == null) {
-                // Not a translatable field, but still traverse nested objects.
+                // 非翻译字段仍需递归其嵌套对象
                 Object nested = readField(field, bean);
                 processObject(nested, context, state);
                 continue;
             }
 
             if (!context.isTypeEnabled(meta.type().name())) {
-                // Skip types that are not enabled for this request.
+                // 请求级类型过滤
                 continue;
             }
 
             if (state.isFieldTranslated(bean, field.getName())) {
-                // Avoid duplicate translation for the same field.
+                // 防止重复翻译同一字段
                 continue;
             }
 
             String targetName = meta.target();
             if (targetName == null || targetName.isEmpty()) {
-                // Explicit target is required to avoid overwriting raw values.
+                // 明确要求 target，避免覆盖原字段
                 continue;
             }
 
             Field targetField = findField(bean.getClass(), targetName);
             if (targetField == null) {
-                // Target field does not exist; skip safely.
+                // 目标字段不存在，安全跳过
                 continue;
             }
 
             Object rawValue = readField(field, bean);
             if (rawValue == null) {
-                // Nothing to translate.
+                // 原值为空无需翻译
                 continue;
             }
 
             TranslateHandler handler = registry.getHandler(meta.type());
             if (handler == null) {
-                // No handler registered for this type; degrade gracefully.
+                // 未注册处理器，安全降级
                 continue;
             }
 
@@ -248,7 +247,7 @@ public class DefaultTranslateExecutor implements TranslateExecutor {
         try {
             return handler.translate(rawValue, meta, context);
         } catch (RuntimeException ex) {
-            // Translation must never break the main flow; swallow and degrade.
+            // 翻译失败不得影响主流程
             return null;
         }
     }
@@ -261,7 +260,7 @@ public class DefaultTranslateExecutor implements TranslateExecutor {
             Map<Object, Object> result = handler.batchTranslate(rawValues, meta, context);
             return result == null ? Collections.emptyMap() : result;
         } catch (RuntimeException ex) {
-            // Translation must never break the main flow; swallow and degrade.
+            // 翻译失败不得影响主流程
             return Collections.emptyMap();
         }
     }
@@ -274,14 +273,14 @@ public class DefaultTranslateExecutor implements TranslateExecutor {
                                   TraversalState state) {
         Object finalValue = translated;
         if (finalValue == null) {
-            // Use fallback or raw value if translation fails.
+            // 翻译失败时使用 fallback 或原值
             String fallback = meta.fallback();
             finalValue = (fallback == null || fallback.isEmpty()) ? rawValue : fallback;
         }
 
         Object existing = readField(targetField, owner);
         if (existing != null) {
-            // Do not override an existing target value to avoid field collisions.
+            // 避免覆盖已有目标字段值
             state.markFieldTranslated(owner, targetField.getName());
             return;
         }
@@ -308,7 +307,7 @@ public class DefaultTranslateExecutor implements TranslateExecutor {
             try {
                 return current.getDeclaredField(name);
             } catch (NoSuchFieldException ignored) {
-                // Try superclass.
+                // 向父类继续查找
                 current = current.getSuperclass();
             }
         }
@@ -333,7 +332,7 @@ public class DefaultTranslateExecutor implements TranslateExecutor {
             }
             field.set(owner, value);
         } catch (IllegalAccessException | IncompatibleClassChangeError ex) {
-            // Ignore to keep translation non-intrusive.
+            // 写入失败不影响主流程
         }
     }
 
@@ -374,7 +373,7 @@ public class DefaultTranslateExecutor implements TranslateExecutor {
                 processCollection((Collection<?>) content, context, state);
             }
         } catch (ReflectiveOperationException ex) {
-            // Ignore if Page signature is unexpected.
+            // Page 结构异常时安全忽略
         }
     }
 

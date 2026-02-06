@@ -12,10 +12,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Default handler for RPC-based translation.
+ * 基于 RPC 翻译的默认处理器。
  * <p>
- * Design intent: delegate the actual RPC call to {@link RpcTranslateClient}
- * so the framework remains independent of Feign/Dubbo/etc.
+ * 设计意图：将真实的 RPC 调用委托给 {@link RpcTranslateClient}，
+ * 使框架与 Feign/Dubbo 等实现保持解耦。
  * </p>
  */
 public class RpcTranslateHandler implements TranslateHandler {
@@ -39,7 +39,7 @@ public class RpcTranslateHandler implements TranslateHandler {
             return Collections.emptyMap();
         }
         if (client == null) {
-            // Client not configured; degrade safely.
+            // 未配置客户端，安全降级。
             return Collections.emptyMap();
         }
 
@@ -47,7 +47,7 @@ public class RpcTranslateHandler implements TranslateHandler {
         String method = meta.rpcMethod();
         String param = meta.param();
         if (service == null || service.isEmpty()) {
-            // Missing routing info; degrade safely.
+            // 缺少路由信息，安全降级。
             return Collections.emptyMap();
         }
 
@@ -56,7 +56,7 @@ public class RpcTranslateHandler implements TranslateHandler {
             return Collections.emptyMap();
         }
 
-        // Normalize results to ensure only requested keys are returned.
+        // 规范化结果，确保只返回请求的键。
         Map<Object, Object> result = new HashMap<>();
         for (Object rawValue : rawValues) {
             if (rawValue == null) {
@@ -75,10 +75,10 @@ public class RpcTranslateHandler implements TranslateHandler {
                                           Collection<Object> rawValues,
                                           String param) {
         try {
-            // Client handles timeouts/retries and returns partial results.
+            // 客户端负责处理超时/重试并可返回部分结果。
             return client.batchFetch(service, method, rawValues, param);
         } catch (RuntimeException ex) {
-            // RPC failures must not break the main flow.
+            // RPC 失败不应影响主流程。
             return Collections.emptyMap();
         }
     }

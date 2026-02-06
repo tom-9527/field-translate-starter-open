@@ -4,24 +4,23 @@ import com.example.translate.annotation.TranslateType;
 import com.example.translate.handler.TranslateHandler;
 
 /**
- * Registry for translation handlers.
+ * 翻译处理器注册表。
  * <p>
- * Design intent: provide a single lookup point so callers never need to know
- * how handlers are created or wired. This keeps routing logic centralized and
- * avoids hardcoded conditionals in the translation flow.
+ * 设计意图：提供统一查找入口，使调用方无需关心
+ * handler 的创建方式或注册细节。
  * </p>
  */
 public interface TranslateHandlerRegistry {
 
     /**
-     * Returns the handler for a given translation type.
+     * 获取指定类型的处理器。
      * <p>
-     * Design intent: allow new translation types to be registered without
-     * changing caller logic or adding switch/if-else statements.
+     * 设计意图：新增翻译类型时无需修改调用方逻辑，
+     * 仅注册新的 handler 即可。
      * </p>
      *
-     * @param type translation type
-     * @return matching handler, or {@code null} if none is registered
+     * @param type 翻译类型
+     * @return 处理器实例；不存在时返回 {@code null}
      */
     TranslateHandler getHandler(TranslateType type);
 }

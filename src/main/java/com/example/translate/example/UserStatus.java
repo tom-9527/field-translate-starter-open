@@ -3,9 +3,9 @@
 import com.example.translate.spi.CodeEnum;
 
 /**
- * Example enum for demonstrating enum translation.
+ * 枚举翻译示例枚举。
  * <p>
- * Design intent: the enum itself owns the mapping from code to display text.
+ * 设计意图：由枚举自身维护 code 到展示文本的映射。
  * </p>
  */
 public enum UserStatus implements CodeEnum<Integer> {

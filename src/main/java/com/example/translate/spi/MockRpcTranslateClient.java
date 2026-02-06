@@ -6,10 +6,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Mock RPC client implementation for demonstration/testing.
+ * Mock RPC 客户端，仅用于演示/测试。
  * <p>
- * Design intent: provide a minimal example without binding to any RPC stack.
- * This class should be replaced by a real client in production.
+ * 设计意图：提供最小示例，生产环境请替换为真实 RPC 实现。
  * </p>
  */
 public class MockRpcTranslateClient implements RpcTranslateClient {
@@ -23,7 +22,7 @@ public class MockRpcTranslateClient implements RpcTranslateClient {
             return Collections.emptyMap();
         }
 
-        // Simulate a remote lookup by returning code->"RPC:"+code mappings.
+        // 模拟 RPC 返回：code -> "RPC:" + code
         Map<Object, Object> result = new HashMap<>();
         for (Object code : codes) {
             if (code == null) {

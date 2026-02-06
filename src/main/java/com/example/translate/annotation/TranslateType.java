@@ -1,31 +1,31 @@
 ﻿package com.example.translate.annotation;
 
 /**
- * Supported translation types recognized by the framework.
+ * 框架识别的翻译类型。
  * <p>
- * Design intent: provide a stable, declarative contract for selecting SPI
- * handlers without encoding any business-specific logic.
+ * 设计意图：为 SPI 处理器提供稳定的类型标识，
+ * 以避免硬编码或散落的条件判断。
  * </p>
  */
 public enum TranslateType {
 
     /**
-     * Enum-based translation (local enum mapping).
+     * 枚举翻译（本地枚举映射）。
      */
     ENUM,
 
     /**
-     * Cache-based dictionary translation.
+     * 缓存字典翻译。
      */
     CACHE,
 
     /**
-     * Table-based translation (light lookup, no joins).
+     * 表字段翻译（轻量查询）。
      */
     TABLE,
 
     /**
-     * RPC-based translation (external service call).
+     * RPC 翻译（外部服务）。
      */
     RPC
 }

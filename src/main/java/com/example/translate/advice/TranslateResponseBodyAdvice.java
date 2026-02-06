@@ -11,10 +11,10 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 /**
- * Triggers translation right before the response body is written.
+ * 在响应体写出前触发翻译。
  * <p>
- * Design intent: ensure translation happens after controller execution so
- * service and DAO layers remain unaware of any translation concerns.
+ * 设计意图：确保翻译发生在 Controller 执行之后，
+ * 使 Service/DAO 层无需感知翻译逻辑。
  * </p>
  */
 @RestControllerAdvice
@@ -29,7 +29,7 @@ public class TranslateResponseBodyAdvice implements ResponseBodyAdvice<Object> {
     @Override
     public boolean supports(MethodParameter returnType,
                             Class<? extends HttpMessageConverter<?>> converterType) {
-        // Always applicable; translation decides at runtime via TranslateContext.
+        // 始终可用；是否翻译由 TranslateContext 在运行时决定。
         return true;
     }
 
@@ -40,7 +40,7 @@ public class TranslateResponseBodyAdvice implements ResponseBodyAdvice<Object> {
                                   Class<? extends HttpMessageConverter<?>> selectedConverterType,
                                   ServerHttpRequest request,
                                   ServerHttpResponse response) {
-        // Respect global and request-level switches from the TranslateContext.
+        // 遵循 TranslateContext 的全局与请求级开关。
         if (!TranslateContext.current().isEnabled()) {
             return body;
         }
