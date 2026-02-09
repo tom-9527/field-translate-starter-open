@@ -8,6 +8,7 @@ import com.example.translate.registry.TranslateHandlerRegistry;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.time.temporal.Temporal;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -294,7 +295,12 @@ public class DefaultTranslateExecutor implements TranslateExecutor {
             List<Field> fields = new ArrayList<>();
             Class<?> current = clazz;
             while (current != null && current != Object.class) {
-                Collections.addAll(fields, current.getDeclaredFields());
+                for (Field field : current.getDeclaredFields()) {
+                    if (Modifier.isStatic(field.getModifiers())) {
+                        continue;
+                    }
+                    fields.add(field);
+                }
                 current = current.getSuperclass();
             }
             return fields;
@@ -316,22 +322,24 @@ public class DefaultTranslateExecutor implements TranslateExecutor {
 
     private Object readField(Field field, Object owner) {
         try {
-            if (!field.canAccess(owner)) {
+            Object target = Modifier.isStatic(field.getModifiers()) ? null : owner;
+            if (!field.canAccess(target)) {
                 field.setAccessible(true);
             }
-            return field.get(owner);
-        } catch (IllegalAccessException | IncompatibleClassChangeError ex) {
+            return field.get(target);
+        } catch (IllegalAccessException | IncompatibleClassChangeError | IllegalArgumentException ex) {
             return null;
         }
     }
 
     private void writeField(Field field, Object owner, Object value) {
         try {
-            if (!field.canAccess(owner)) {
+            Object target = Modifier.isStatic(field.getModifiers()) ? null : owner;
+            if (!field.canAccess(target)) {
                 field.setAccessible(true);
             }
-            field.set(owner, value);
-        } catch (IllegalAccessException | IncompatibleClassChangeError ex) {
+            field.set(target, value);
+        } catch (IllegalAccessException | IncompatibleClassChangeError | IllegalArgumentException ex) {
             // 写入失败不影响主流程
         }
     }
